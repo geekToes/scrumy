@@ -43,21 +43,33 @@ def _send_to_connection(connection_id, data):
         ConnectionId=connection_id,
         Data=json.dumps(data).encode('utf-8')
     )
+   
 
+def _send_to_connection(connection_id, data):
+    gatewayapi = boto3.client(
+        'apigatewaymanagementapi',
+        endpoint_url='https://lr3z72e4h0.execute-api.eu-central-1.amazonaws.com/test/',
+        region_name='eu-central-1',
+        aws_access_key_id='AKIAQBA7ZTETCIYL5VFI',
+        aws_secret_access_key='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'
+    )
+    return gatewayapi.post_to_connection(
+        ConnectionId=connection_id,
+        Data=json.dumps(data).encode('utf-8')
+    )
+    
 @csrf_exempt
 def send_message(request):
   body = _parse_body(request.body)
-  client = Connection.objects.get(connection_id=body['connectionId'])
   ChatMessage.objects.create(
     username=body['username'],
     message=body['message'],
-    timestamp=body['timestamp'],
-    client=client
+    timestamp=body['timestamp']
   )
   connections = [_.connection_id for _ in Connection.objects.all()]
   data = {'messages': [ body ] }
   for connection in connections:
-    _send_to(connection, data)
+    _send_to_connection(connection, data)
   
   return JsonResponse({ 'message': 'successfully sent' }, status=200)
 
