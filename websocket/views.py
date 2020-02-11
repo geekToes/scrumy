@@ -28,5 +28,32 @@ def disconnect(request):
     body = _parse_body(request.body)
     connection_id = body['connectionId']
     connection = Connection.objects.get(connection_id=connection_id).delete()
-    connection.save()
     return JsonResponse({"message":"disconnected successfully"}, status=200)    
+
+def _send_to_connection(connection_id, data):
+    gatewayapi = boto3.client(
+        'apigatewaymanagementapi',
+        endpoint_url='https://lr3z72e4h0.execute-api.eu-central-1.amazonaws.com/test/',
+        region_name='eu-central-1',
+        aws_access_key_id='AKIAQBA7ZTETCIYL5VFI',
+        aws_secret_access_key='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'
+    )
+    return gatewayapi.post_to_connection(
+        ConnectionId=connection_id,
+        Data=json.dumps(data).encode('utf-8')
+    )
+
+@csrf_exempt
+def send_message(request):
+    body = _parse_body(request.body)
+    chat = ChatMessage()
+    chat.username = body['username']
+    chat.message = body['message']
+    chat.timestamp = body['timestamp']
+    chat.save()
+    connections = CreateConnection.objects.all()
+    data = {'messages': [body]}
+    for connection in connections:
+        _send_to_connection(connection.connection_id, data)
+
+    return JsonResponse({"message": "successfully sent"}, status=200)    
