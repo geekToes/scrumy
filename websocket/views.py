@@ -51,7 +51,7 @@ def send_message(request):
     chat.message = body['message']
     chat.timestamp = body['timestamp']
     chat.save()
-    connections = CreateConnection.objects.all()
+    connections = Connection.objects.all()
     data = {'messages': [body]}
     for connection in connections:
         _send_to_connection(connection.connection_id, data)
