@@ -54,9 +54,9 @@ def send_message(request):
     body = _parse_body(request.body)
     print(body)
     ChatMessage.objects.create(
-        username=body['username'],
-        message=body['message'],
-        timestamp=body['timestamp']
+        username=body['body']['username'],
+        message=body['body']['message'],
+        timestamp=body['body']['timestamp']
     )
     connections = Connection.objects.all()
     data = {'messages': [body]}
