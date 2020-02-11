@@ -52,7 +52,6 @@ def _send_to_connection(connection_id, data):
 @csrf_exempt
 def send_message(request):
     body = _parse_body(request.body)
-    body = body.dict()
     print(body)
     ChatMessage.objects.create(
         username=body['username'],
