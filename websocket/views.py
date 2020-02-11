@@ -17,19 +17,23 @@ def _parse_body(body):
     body_unicode = body.decode('utf-8')
     return json.loads(body_unicode)
 
+
 @csrf_exempt
 def connect(request):
     body = _parse_body(request.body)
     connection_id = body['connectionId']
     connection = Connection.objects.create(connection_id=connection_id)
     connection.save()
-    return JsonResponse({"message":"connected successfully"}, status=200)
+    return JsonResponse({"message": "connected successfully"}, status=200)
+
+
 @csrf_exempt
 def disconnect(request):
     body = _parse_body(request.body)
     connection_id = body['connectionId']
     connection = Connection.objects.get(connection_id=connection_id).delete()
-    return JsonResponse({"message":"disconnected successfully"}, status=200)    
+    return JsonResponse({"message": "disconnected successfully"}, status=200)
+
 
 def _send_to_connection(connection_id, data):
     gatewayapi = boto3.client(
@@ -43,14 +47,17 @@ def _send_to_connection(connection_id, data):
         ConnectionId=connection_id,
         Data=json.dumps(data).encode('utf-8')
     )
-    
+
+
 @csrf_exempt
 def send_message(request):
     body = _parse_body(request.body)
+    body = body.dict()
+    print(body)
     ChatMessage.objects.create(
-      username=body['username'],
-      message=body['message'],
-      timestamp=body['timestamp']
+        username=body['username'],
+        message=body['message'],
+        timestamp=body['timestamp']
     )
     connections = Connection.objects.all()
     data = {'messages': [body]}
@@ -63,19 +70,19 @@ def send_message(request):
 
 @csrf_exempt
 def recent_messages(request):
-  body = _parse_body(request.body)
-  connection_id = body['connectionId']
-  messages = []
-  for message in ChatMessage.objects.all():
-    messages.append(
-      {
-        'username': message.username,
-        'message': message.message,
-        'timestamp': message.timestamp
-      }
-    )
-  messages.reverse()
-  data = { 'messages': messages }
-  _send_to_connection(connection_id, data)
+    body = _parse_body(request.body)
+    connection_id = body['connectionId']
+    messages = []
+    for message in ChatMessage.objects.all():
+        messages.append(
+            {
+                'username': message.username,
+                'message': message.message,
+                'timestamp': message.timestamp
+            }
+        )
+    messages.reverse()
+    data = {'messages': messages}
+    _send_to_connection(connection_id, data)
 
-  return JsonResponse({'message': 'success'}, status=200)
+    return JsonResponse({'message': 'success'}, status=200)
