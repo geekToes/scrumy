@@ -54,6 +54,7 @@ def send_message(request):
     )
     connections = Connection.objects.all()
     data = {'messages': [body]}
+    print(data)
     for connection in connections:
         _send_to_connection(connection.connection_id, data)
 
