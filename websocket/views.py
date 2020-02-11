@@ -46,15 +46,37 @@ def _send_to_connection(connection_id, data):
 
 @csrf_exempt
 def send_message(request):
-    body = _parse_body(request.body)
-    chat = ChatMessage()
-    chat.username = body['username']
-    chat.message = body['message']
-    chat.timestamp = body['timestamp']
-    chat.save()
-    connections = Connection.objects.all()
-    data = {'messages': [body]}
-    for connection in connections:
-        _send_to_connection(connection.connection_id, data)
+  body = _parse_body(request.body)
+  client = Connection.objects.get(connection_id=body['connectionId'])
+  ChatMessage.objects.create(
+    username=body['username'],
+    message=body['message'],
+    timestamp=body['timestamp'],
+    client=client
+  )
+  connections = [_.connection_id for _ in Connection.objects.all()]
+  data = {'messages': [ body ] }
+  for connection in connections:
+    _send_to(connection, data)
+  
+  return JsonResponse({ 'message': 'successfully sent' }, status=200)
 
-    return JsonResponse({"message": "successfully sent"}, status=200)    
+
+@csrf_exempt
+def recent_messages(request):
+  body = _parse_body(request.body)
+  connection_id = body['connectionId']
+  messages = []
+  for message in ChatMessage.objects.all():
+    messages.append(
+      {
+        'username': message.username,
+        'message': message.message,
+        'timestamp': message.timestamp
+      }
+    )
+  messages.reverse()
+  data = { 'messages': messages }
+  _send_to_connection(connection_id, data)
+
+  return JsonResponse({'message': 'success'}, status=200)
