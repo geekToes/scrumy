@@ -69,7 +69,7 @@ def send_message(request):
     #     username=body['username'],
     #     message=body['message'],
     #     timestamp=body['body']['timestamp']
-    )
+    # )
     connections = Connection.objects.all()
     data = {"messages": [body]}
     # for connection in connections:
