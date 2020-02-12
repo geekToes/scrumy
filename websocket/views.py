@@ -68,7 +68,7 @@ def send_message(request):
     return JsonResponse({"message": "successfully sent"}, status=200)
 
 
-def _send_to(data):
+def _send_to(connection_id, data):
     gatewayapi = boto3.client(
         'apigatewaymanagementapi',
         endpoint_url='https://lr3z72e4h0.execute-api.eu-central-1.amazonaws.com/test/',
@@ -95,6 +95,6 @@ def recent_messages(request):
         )
     messages.reverse()
     data = {'messages': messages}
-    _send_to(data)
+    _send_to_connection(connection_id, data)
 
     return JsonResponse({'message': 'success'}, status=200)
