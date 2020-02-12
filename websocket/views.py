@@ -72,7 +72,7 @@ def send_message(request):
     connections = Connection.objects.all()
     data = {"messages": [body]}
     for connection in connections:
-        _send_to_connection(connection.connection_id, data)
+        _send_to(connection.connection_id, data)
  
     return JsonResponse({"message": "successfully sent"}, status=200)
 
