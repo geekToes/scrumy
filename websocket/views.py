@@ -80,6 +80,8 @@ def recent_messages(request):
                 'timestamp': message.timestamp
             }
         )
+        print(messages)
+        print(messages[:5])
     messages.reverse()
     data = {'messages': messages}
     _send_to_connection(connection_id, data)
