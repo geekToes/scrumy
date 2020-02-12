@@ -48,8 +48,6 @@ def _send_to_connection(connection_id, data):
         Data=json.dumps(data).encode('utf-8')
     )
 
-
-
 @csrf_exempt
 def send_message(request):
     body = _parse_body(request.body)
@@ -95,6 +93,6 @@ def recent_messages(request):
         )
     messages.reverse()
     data = {'messages': messages}
-    _send_to_connection(connection_id, data)
+    _send_to(connection_id, data)
 
     return JsonResponse({'message': 'success'}, status=200)
