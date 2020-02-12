@@ -65,15 +65,15 @@ def _send_to(connection_id, data):
 def send_message(request):
     body = _parse_body(request.body)
     print(body)
-    # ChatMessage.objects.create(
-    #     username=body['username'],
-    #     message=body['message'],
-    #     timestamp=body['body']['timestamp']
-    # )
+    ChatMessage.objects.create(
+        username=body['username'],
+        message=body['message'],
+        timestamp=body['timestamp']
+    )
     connections = Connection.objects.all()
     data = {"messages": [body]}
-    # for connection in connections:
-    #     _send_to_connection(connection.connection_id, data)
+    for connection in connections:
+        _send_to_connection(connection.connection_id, data)
  
     return JsonResponse({"message": "successfully sent"}, status=200)
 
