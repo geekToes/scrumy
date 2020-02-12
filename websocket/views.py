@@ -49,6 +49,7 @@ def _send_to_connection(connection_id, data):
     )
 
 
+
 @csrf_exempt
 def send_message(request):
     body = _parse_body(request.body)
@@ -67,6 +68,18 @@ def send_message(request):
     return JsonResponse({"message": "successfully sent"}, status=200)
 
 
+def _send_to(data):
+    gatewayapi = boto3.client(
+        'apigatewaymanagementapi',
+        endpoint_url='https://lr3z72e4h0.execute-api.eu-central-1.amazonaws.com/test/',
+        region_name='eu-central-1',
+        aws_access_key_id='AKIAQBA7ZTETCIYL5VFI',
+        aws_secret_access_key='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'
+    )
+    return gatewayapi.post_to_connection(
+        Data=json.dumps(data).encode('utf-8')
+    )
+
 @csrf_exempt
 def recent_messages(request):
     body = _parse_body(request.body)
@@ -80,10 +93,8 @@ def recent_messages(request):
                 'timestamp': message.timestamp
             }
         )
-        print(messages)
-        print(messages[:5])
     messages.reverse()
     data = {'messages': messages}
-    _send_to_connection(connection_id, data)
+    _send_to(data)
 
     return JsonResponse({'message': 'success'}, status=200)
